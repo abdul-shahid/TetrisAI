@@ -2,10 +2,13 @@
 #include <QtCore>
 
 void Piece::setRandomShape() {
-    setShape(Shape(QRandomGenerator::global()->bounded(7) + 1));
+    PieceShape s = NoShape;
+    while (s == NoShape || s == SQUARE)
+        s = PieceShape(QRandomGenerator::global()->bounded(7) + 1);
+    setShape(s);
 }
 
-void Piece::setShape(Shape shape) {
+void Piece::setShape(PieceShape shape) {
     static constexpr int coordsTable[8][4][2] = {
         { { 0, 0 },   { 0, 0 },   { 0, 0 },   { 0, 0 } },
         { { 0, -1 },  { 0, 0 },   { -1, 0 },  { -1, 1 } },
@@ -16,10 +19,10 @@ void Piece::setShape(Shape shape) {
         { { -1, -1 }, { 0, -1 },  { 0, 0 },   { 0, 1 } },
         { { 1, -1 },  { 0, -1 },  { 0, 0 },   { 0, 1 } }
     };
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 2; ++j) {
+
+    for (int i = 0; i < 4 ; i++) {
+        for (int j = 0; j < 2; ++j)
             coords[i][j] = coordsTable[shape][i][j];
-        }
     }
     piece = shape;
 }
@@ -46,13 +49,16 @@ int Piece::maxY() const {
     return max;
 }
 Piece Piece::rotateLeft() const {
-    if (piece == SQUARE) return *this;
+    if (piece == SQUARE)
+        return *this;
+
     Piece result;
     result.piece = piece;
     for (int i = 0; i < 4; ++i) {
         result.setX(i, y(i));
         result.setY(i, -x(i));
     }
+//! [7]
     return result;
 }
 Piece Piece::rotateRight() const {

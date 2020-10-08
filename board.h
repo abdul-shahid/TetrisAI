@@ -27,20 +27,29 @@ private:
     int timeoutTime() { return 1000 / (1 + level);}
     int squareWidth() {return contentsRect().width() / BoardWidth;}
     int squareHeight() {return contentsRect().height() / BoardHeight;}
-    Shape &shapeAt(int x, int y) {return board[(y * BoardWidth) + x];}
+    PieceShape &shapeAt(int x, int y) {return board[(y * BoardWidth) + x];}
+
+    void clearBoard();
+    void newPiece();
+    void showNextPiece();
+    bool tryMove(const Piece &newPiece, int newX, int newY);
+    void draw(QPainter &painter, int x, int y, PieceShape shape);
+    void oneLineDown();
+    void pieceDropped();
+    void removeFullLines();
+    void hardDrop();
     QBasicTimer timer;
     QPointer<QLabel> nextLabel;
+    Piece curPiece;
+    Piece nextPiece;
     
     bool isStarted;
     bool isWaitingAfterLine;
-    
-    Piece curPiece;
-    Piece nextPiece;
     int curX;
     int curY;
     int score;
     int level;
-    Shape board[BoardWidth * BoardHeight];
+    PieceShape board[BoardWidth * BoardHeight];
 
     
 };

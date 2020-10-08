@@ -1,13 +1,13 @@
 #ifndef PIECE
 #define PIECE
-enum Shape {NoShape, Z, S, LINE, T, SQUARE, L, LL};
+enum PieceShape {NoShape, Z, S, LINE, T, SQUARE, L, LL};
 class Piece
 {
 public:
     Piece() {setShape(NoShape);}
     void setRandomShape();
-    void setShape(Shape shape);
-    Shape shape() const {return piece;}
+    void setShape(PieceShape shape);
+    PieceShape shape() const {return piece;}
     int x(int index) const {return coords[index][0];}
     int y(int index) const {return coords[index][1];}
     int minX() const;
@@ -18,8 +18,8 @@ public:
     Piece rotateRight() const;
 private:
     void setX(int index, int x) {coords[index][0] = x;}
-    void setY(int index, int y) {coords[index][0] = y;}
-    Shape piece;
+    void setY(int index, int y) {coords[index][1] = y;}
+    PieceShape piece;
     int coords[4][2];
 };
 #endif
