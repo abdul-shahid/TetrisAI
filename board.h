@@ -18,13 +18,16 @@ public:
     QSize minimumSizeHint() const override;
 public slots:
     void start();
+    void startAI();
+signals:
+    void linesRemovedChanged(int numLines);
 protected:
     void paintEvent(QPaintEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void timerEvent(QTimerEvent *event) override;
 private:
     enum {BoardWidth = 10, BoardHeight = 22};
-    int timeoutTime() { return 1000 / (1 + level);}
+    int timeoutTime() { return 1000;}
     int squareWidth() {return contentsRect().width() / BoardWidth;}
     int squareHeight() {return contentsRect().height() / BoardHeight;}
     PieceShape &shapeAt(int x, int y) {return board[(y * BoardWidth) + x];}
@@ -48,7 +51,7 @@ private:
     int curX;
     int curY;
     int score;
-    int level;
+    int numLines = 0;
     PieceShape board[BoardWidth * BoardHeight];
 
     

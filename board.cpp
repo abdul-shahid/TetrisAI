@@ -22,12 +22,17 @@ void Board::start() {
     isStarted = true;
     isWaitingAfterLine = false;
     score = 0;
-    level = 1;
+    numLines = 0;
     clearBoard();
-
+    emit linesRemovedChanged(numLines);
     newPiece();
     timer.start(timeoutTime(), this);
 }
+
+void Board::startAI() {
+    
+}
+
 void Board::paintEvent(QPaintEvent *event) {
     QFrame::paintEvent(event);
     QPainter painter(this);
@@ -42,11 +47,8 @@ void Board::paintEvent(QPaintEvent *event) {
                 draw(painter, rect.left() + j * squareWidth(),
                            boardTop + i * squareHeight(), shape);
         }
-//! [8] //! [9]
     }
-//! [9]
 
-//! [10]
     if (curPiece.shape() != NoShape) {
         for (int i = 0; i < 4; ++i) {
             int x = curX + curPiece.x(i);
@@ -93,7 +95,6 @@ void Board::timerEvent(QTimerEvent *event) {
             newPiece();
             timer.start(timeoutTime(), this);
         } else {
-            oneLineDown();
         }
     } else QFrame::timerEvent(event);
 }
@@ -106,8 +107,8 @@ void Board::newPiece() {
     curPiece = nextPiece;
     nextPiece.setRandomShape();
     showNextPiece();
-    curX = BoardWidth / 2 + 1;
-    curY = BoardHeight - 1 + curPiece.minY();
+    curX = curPiece.maxX() + 1;
+    curY = BoardHeight - 2 + curPiece.minY();
     if (!tryMove(curPiece, curX, curY)) {
         curPiece.setShape(NoShape);
         timer.stop();
@@ -146,8 +147,8 @@ bool Board::tryMove(const Piece &newPiece, int newX, int newY) {
 
 void Board::draw(QPainter &painter, int x, int y, PieceShape shape) {
     static constexpr QRgb colorTable[8] = {
-        0x000000, 0xCC6666, 0x66CC66, 0x6666CC,
-        0xCCCC66, 0xCC66CC, 0x66CCCC, 0xDAAA00
+        0x264653, 0x2A9D8F, 0xE9C46A, 0xF4A261,
+        0xE76F51, 0x794c74, 0x19d3da, 0x03c4a1
     };
 
     QColor color = colorTable[int(shape)];
@@ -202,6 +203,8 @@ void Board::removeFullLines() {
         }
     }
     if (fullLines > 0) {
+        numLines += fullLines;
+        emit linesRemovedChanged(numLines);
         timer.start(500, this);
         isWaitingAfterLine = true;
         curPiece.setShape(NoShape);
@@ -211,4 +214,5 @@ void Board::removeFullLines() {
 
 void Board::hardDrop() {
     while (tryMove(curPiece, curX, curY - 1)) {}
+    pieceDropped();
 }
