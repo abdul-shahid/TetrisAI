@@ -2,10 +2,15 @@
 #include <QtCore>
 
 void Piece::setRandomShape() {
-    PieceShape s = NoShape;
-    while (s == NoShape || s == SQUARE)
-        s = PieceShape(QRandomGenerator::global()->bounded(7) + 1);
-    setShape(s);
+    if (pieces.size() == 0) {
+        std::list<PieceShape> p{Z,S,LINE,T,SQUARE,L,LL};
+        pieces = p;
+    }
+    int random = QRandomGenerator::global()->bounded((int)pieces.size());
+    std::list<PieceShape>::iterator it = pieces.begin();
+    std::advance(it, random);
+    setShape(*it);
+    pieces.erase(it);
 }
 
 void Piece::setShape(PieceShape shape) {
