@@ -4,6 +4,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QPainter>
+#include <QThread>
 
 Board::Board(QWidget *parent) : QFrame(parent), isStarted(false)
 {
@@ -34,12 +35,13 @@ void Board::startAI() {
     if (!isStarted) {
         start();
     }
-    std::cout << "AI created" << std::endl;
-    Piece p = ai.getBest(board, curPiece, curX, curY, BoardHeight, BoardWidth);
-    curPiece = p;
-    tryMove(curPiece, curX, curY);
-    hardDrop();
-    std::cout << p << std::endl;
+    int sc = 0;
+    for (int i = 0; i < 1; ++i) {
+        Piece p = ai.getBest(board, curPiece, curX, curY, BoardHeight, BoardWidth);
+        curPiece = p;
+        hardDrop();
+        sc = std::max(sc, score);
+    }
 }
 
 void Board::paintEvent(QPaintEvent *event) {
@@ -223,7 +225,6 @@ void Board::removeFullLines() {
         update();
     }
 }
-
 void Board::hardDrop() {
     while (tryMove(curPiece, curX, curY - 1)) {}
     pieceDropped();

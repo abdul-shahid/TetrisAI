@@ -2,6 +2,7 @@
 #define BOARD
 #include <QBasicTimer>
 #include <QFrame>
+#include <QThread>
 #include <QPointer>
 #include "piece.h"
 #include "AI.h"
@@ -33,7 +34,6 @@ private:
     int squareWidth() {return contentsRect().width() / BoardWidth;}
     int squareHeight() {return contentsRect().height() / BoardHeight;}
     PieceShape &shapeAt(int x, int y) {return board[y][x];}
-
     void clearBoard();
     void newPiece();
     void showNextPiece();
