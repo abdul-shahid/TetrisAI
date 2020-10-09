@@ -1,4 +1,5 @@
 #include "board.h"
+#include "AI.h"
 #include <iostream>
 #include <QKeyEvent>
 #include <QLabel>
@@ -30,7 +31,15 @@ void Board::start() {
 }
 
 void Board::startAI() {
-    
+    if (!isStarted) {
+        start();
+    }
+    std::cout << "AI created" << std::endl;
+    Piece p = ai.getBest(board, curPiece, curX, curY, BoardHeight, BoardWidth);
+    curPiece = p;
+    tryMove(curPiece, curX, curY);
+    hardDrop();
+    std::cout << p << std::endl;
 }
 
 void Board::paintEvent(QPaintEvent *event) {
@@ -100,8 +109,11 @@ void Board::timerEvent(QTimerEvent *event) {
 }
 
 void Board::clearBoard() {
-    for (int i = 0; i < BoardHeight * BoardWidth; ++i)
-            board[i] = NoShape;
+    for (int i = 0; i < BoardHeight; ++i) {
+        for (int j = 0; j < BoardWidth; ++j) {
+            shapeAt(j,i) = NoShape;
+        }
+    }
 }
 void Board::newPiece() {
     curPiece = nextPiece;

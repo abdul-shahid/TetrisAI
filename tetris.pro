@@ -6,6 +6,8 @@ TEMPLATE = app
 TARGET = tetris
 INCLUDEPATH += .
 QT += gui widgets
+CONFIG += c++11
+
 
 # The following define makes your compiler warn you if you use any
 # feature of Qt which has been marked as deprecated (the exact warnings
@@ -23,9 +25,11 @@ SOURCES += \
         main.cpp \
         window.cpp \
     board.cpp \
-    piece.cpp 
+    piece.cpp \
+    AI.cpp
 
 HEADERS += \
     board.h \
     piece.h \
-    window.h
+    window.h \
+    AI.h

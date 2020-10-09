@@ -4,10 +4,12 @@
 #include <QFrame>
 #include <QPointer>
 #include "piece.h"
-
+#include "AI.h"
+#include <vector>
 QT_BEGIN_NAMESPACE
 class QLabel;
 QT_END_NAMESPACE
+class AI;
 class Board : public QFrame
 {
     Q_OBJECT
@@ -30,7 +32,7 @@ private:
     int timeoutTime() { return 1000;}
     int squareWidth() {return contentsRect().width() / BoardWidth;}
     int squareHeight() {return contentsRect().height() / BoardHeight;}
-    PieceShape &shapeAt(int x, int y) {return board[(y * BoardWidth) + x];}
+    PieceShape &shapeAt(int x, int y) {return board[y][x];}
 
     void clearBoard();
     void newPiece();
@@ -52,8 +54,7 @@ private:
     int curY;
     int score;
     int numLines = 0;
-    PieceShape board[BoardWidth * BoardHeight];
-
-    
+    std::vector<std::vector<PieceShape>> board{BoardHeight, std::vector<PieceShape>{BoardWidth, NoShape}};
+    AI ai;
 };
 #endif

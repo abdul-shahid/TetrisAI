@@ -31,6 +31,7 @@ Window::Window(QWidget *parent) : QWidget(parent), board(new Board)
     layout->addWidget(startButton, 4, 0);
     layout->addWidget(board, 0, 1, 6, 1);
     layout->addWidget(quitButton, 5, 2);
+    layout->addWidget(AIButton, 6, 2);
     layout->addWidget(linesLcd, 3, 2);
     setLayout(layout);
 
