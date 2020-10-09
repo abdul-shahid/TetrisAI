@@ -36,7 +36,7 @@ Window::Window(QWidget *parent) : QWidget(parent), board(new Board)
     setLayout(layout);
 
     setWindowTitle(tr("Tetris"));
-    resize(550, 370);
+    resize(640, 720);
 }
 QLabel *Window::createLabel(const QString &text)
 {

@@ -69,7 +69,6 @@ double AI::aggregate_score(b &board) {
                 if (holes_by_col[j] > 0) ++blockades;
                 if (i > 1 && board[i-2][j] == NoShape){ 
                     ++wells;
-                    if (holes_by_col[j] > 0) blockades += holes_by_col[j];
                     if (found_by_col[j]) ++blockades;
                     ++holes_by_col[j];
                 }
@@ -99,9 +98,7 @@ double AI::aggregate_score(b &board) {
         prev = i;
         deepest_well = std::max(deepest_well, max_height -  i);
     }
-    if (full_lines >= 4) full_lines *= 15;
-    else full_lines *= 8;
-    return 7.5*holes - max_height + full_lines - 3.5*wells - 1.5 * bumpiness - 3*blockades - 2 *deepest_well;
+    return 7.5*holes - max_height + 9*full_lines - 3.5*wells - 1.5 * bumpiness - 4*blockades - 2 *deepest_well;
 }
 
 
