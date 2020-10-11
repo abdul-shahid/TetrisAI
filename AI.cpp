@@ -4,7 +4,7 @@
 #include <vector>
 using b = std::vector<std::vector<PieceShape>>;
 AI::AI() {}
-Piece AI::getBest(b board, Piece &cur, int &curX, int &curY, int BoardHeight, int BoardWidth) {
+Piece AI::getBest(b &board, Piece &cur, int &curX, int &curY, int BoardHeight, int BoardWidth) {
     // for each of the 4 rotations
     Piece best = cur;
     int prev = curX;

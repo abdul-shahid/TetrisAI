@@ -10,7 +10,7 @@ private:
     double aggregate_score(b &board);
 public:
     AI();
-    Piece getBest(b board, Piece &cur, int &curX, int &curY, int BoardHeight, int BoardWidth);
+    Piece getBest(b &board, Piece &cur, int &curX, int &curY, int BoardHeight, int BoardWidth);
     bool move(b &board, Piece &newPiece, int newX, int newY, int &BoardWidth, int &BoardHeight);
 };
 #endif
