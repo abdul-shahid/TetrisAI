@@ -20,7 +20,7 @@ QSize Board::sizeHint() const {
 QSize Board::minimumSizeHint() const {
     return QSize(BoardWidth *5 + frameWidth() * 2, BoardHeight *5 + frameWidth() * 2);
 }
-void Board::start() {
+void Board::startTimer() {
     isStarted = true;
     isWaitingAfterLine = false;
     score = 0;
@@ -30,18 +30,14 @@ void Board::start() {
     newPiece();
     timer.start(timeoutTime(), this);
 }
+void Board::start() {
+    isAI = false;
+    if (!isStarted) startTimer();
+}
 
 void Board::startAI() {
-    if (!isStarted) {
-        start();
-    }
-    int sc = 0;
-    for (int i = 0; i < 1; ++i) {
-        Piece p = ai.getBest(board, curPiece, curX, curY, BoardHeight, BoardWidth);
-        curPiece = p;
-        hardDrop();
-        sc = std::max(sc, score);
-    }
+    isAI = true;
+    if (!isStarted) startTimer();
 }
 
 void Board::paintEvent(QPaintEvent *event) {
@@ -105,10 +101,12 @@ void Board::timerEvent(QTimerEvent *event) {
             isWaitingAfterLine = false;
             newPiece();
             timer.start(timeoutTime(), this);
-        } else {
-        }
+        } else if (isAI){
+            hardDrop();
+        } else oneLineDown();
     } else QFrame::timerEvent(event);
 }
+
 
 void Board::clearBoard() {
     for (int i = 0; i < BoardHeight; ++i) {
@@ -123,6 +121,7 @@ void Board::newPiece() {
     showNextPiece();
     curX = curPiece.maxX() + 1;
     curY = BoardHeight - 2 + curPiece.minY();
+    if (isAI) curPiece = ai.getBest(board, curPiece, nextPiece, curX, curY, BoardHeight, BoardWidth);
     if (!tryMove(curPiece, curX, curY)) {
         curPiece.setShape(NoShape);
         timer.stop();
@@ -219,7 +218,7 @@ void Board::removeFullLines() {
     if (fullLines > 0) {
         numLines += fullLines;
         emit linesRemovedChanged(numLines);
-        timer.start(500, this);
+        timer.start(0, this);
         isWaitingAfterLine = true;
         curPiece.setShape(NoShape);
         update();

@@ -4,7 +4,7 @@
 #include <vector>
 using b = std::vector<std::vector<PieceShape>>;
 AI::AI() {}
-Piece AI::getBest(b &board, Piece &cur, int &curX, int &curY, int BoardHeight, int BoardWidth) {
+Piece AI::getBest(b &board, Piece &cur, Piece &next, int &curX, int &curY, int BoardHeight, int BoardWidth) {
     // for each of the 4 rotations
     Piece best = cur;
     int prev = curX;
@@ -16,25 +16,55 @@ Piece AI::getBest(b &board, Piece &cur, int &curX, int &curY, int BoardHeight, i
             if (i > 1) break;
         int newX = c.maxX() + 1;
         // move as left as possible
-        while (move(board, c, newX, curY, BoardWidth, BoardHeight))
-            --newX;
-        while (!move(board, c, newX, curY, BoardWidth, BoardHeight))
-            ++newX;
+        newX = moveLeft(board, c, BoardWidth, BoardHeight, curX, curY);
+        b bb = board;
         while (move(board, c, newX, curY, BoardWidth, BoardHeight)) {
-            int newY = curY;
-            while(move(board, c, newX, newY-1, BoardWidth, BoardHeight))
-                --newY;
+            int newY = move_down(board, c, newX, curY, BoardWidth, BoardHeight);
             double piece_score = get_score(board, newX, newY, c);
-            if (piece_score > score) {
-                best = c;
-                curX = newX;
-                score = piece_score;
+            
+            Piece n(next);
+            for (int j = 0; j < 4; ++j) {
+                if (next.shape() == SQUARE && j > 0) break;
+                if (next.shape() == LINE || cur.shape() == S || cur.shape() == Z)
+                    if (j > 1) break;
+                int cy = BoardHeight - 2 + n.minY();
+                int nx = moveLeft(board, n, BoardWidth, BoardHeight, n.maxX() + 1,cy);
+                while (move(board, n, nx, cy, BoardWidth, BoardHeight)) {
+                    int ny = move_down(board, n, nx, cy, BoardWidth, BoardHeight);
+                    b bb2 = board;
+                    double next_score = get_score(board, nx, ny, n);
+                    board = bb2;
+                    if (piece_score + next_score > score) {
+                        best = c;
+                        curX = newX;
+                        score = piece_score + next_score;
+                    }
+                    ++nx;
+                }
+                n = n.rotateLeft();
+                
             }
+            board = bb;
             ++newX;
         }
         c = c.rotateLeft();
     }
     return best;
+}
+int AI::moveLeft(b &board, Piece &piece, int BoardWidth, int BoardHeight, int curX, int curY) {
+     int newX = piece.maxX() + 1;
+     while (move(board, piece, newX, curY, BoardWidth, BoardHeight))
+            --newX;
+    int iter = newX;
+    while (!move(board, piece, newX, curY, BoardWidth, BoardHeight)) {
+        if (newX - iter > BoardWidth + 1) break;
+        ++newX;
+    }
+    return newX;
+}
+int AI::move_down(b &board, Piece &c, int newX, int newY, int BoardWidth, int BoardHeight) {
+    while(move(board, c, newX, newY-1, BoardWidth, BoardHeight)) --newY;
+    return newY;
 }
 double AI::get_score(b &board, int newX, int newY, Piece &p) {
     for (int i = 0; i < 4; ++i) {
@@ -42,11 +72,27 @@ double AI::get_score(b &board, int newX, int newY, Piece &p) {
         int y = newY - p.y(i);
         board[y][x] = p.shape();
     }
-    int ret = aggregate_score(board);
-    for (int i = 0; i < 4; ++i) {
-        int x = newX + p.x(i);
-        int y = newY - p.y(i);
-        board[y][x] = NoShape;
+    int fl = 0;
+    int bh = board.size(), bw = board[0].size();
+    double ret = aggregate_score(board);
+    for (int i = bh -1; i >= 0; --i) {
+        bool isFull = true;
+        for (int j = 0; j < bw; ++j)
+            if (board[i][j] == NoShape) {
+                isFull = false;
+                break;
+            }
+        if (isFull) {
+            ++fl;
+            for (int k = i; k < bh - 1; ++k) {
+                for (int j = 0; j < bw; ++j) {
+                    board[k][j] = board[k+1][j];
+                }
+            }
+            for (int j = 0; j  < bw; ++j) {
+                board[bh - 1][j] = NoShape;
+            }
+        }
     }
     return ret;
 }
@@ -87,18 +133,29 @@ double AI::aggregate_score(b &board) {
         if (!isEmpty) ++max_height;
     }
     int deepest_well = 0;
-    int prev = -1;
+    int prev = -10;
     int bumpiness = 0;
+    for (int j = 0; j < m; ++j) {
+        int i = n -1;
+        while (i >= 0 && board[i][j] == NoShape) --i;
+        int dep = 0;
+        while (i >= 0) {
+            if (board[i][j] != NoShape) dep = 0;
+            else ++dep;
+            deepest_well = std::max(deepest_well, dep);
+            --i;
+        }
+    }
     for (int j = 0; j < m; ++j) {
         int i = n-1;
         while (i >=0 && board[i][j] == NoShape) --i;
-        if (prev >= 0 && i >= 0) {
+        if (prev > -10 && i >= 0) {
             bumpiness += std::abs(i - prev);
         }
         prev = i;
-        deepest_well = std::max(deepest_well, max_height -  i);
     }
-    return 7.5*holes - max_height + 9*full_lines - 3.5*wells - 1.5 * bumpiness - 4*blockades - 2 *deepest_well;
+    if (full_lines >= 3) full_lines *= 2;
+    return 111*holes - 4*max_height + 5*full_lines - 3.5*wells - 3 * bumpiness - blockades - 5*deepest_well;
 }
 
 

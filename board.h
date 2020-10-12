@@ -43,12 +43,14 @@ private:
     void pieceDropped();
     void removeFullLines();
     void hardDrop();
+    void startTimer();
     QBasicTimer timer;
     QPointer<QLabel> nextLabel;
     Piece curPiece;
     Piece nextPiece;
     
     bool isStarted;
+    bool isAI;
     bool isWaitingAfterLine;
     int curX;
     int curY;
