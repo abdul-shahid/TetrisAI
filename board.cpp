@@ -126,6 +126,10 @@ void Board::newPiece() {
         curPiece.setShape(NoShape);
         timer.stop();
         isStarted = false;
+        if (isAI) {
+            std::cout << numLines << std::endl;
+            startAI();
+        }
     }
 }
 void Board::showNextPiece() {

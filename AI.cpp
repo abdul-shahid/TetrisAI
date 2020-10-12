@@ -7,7 +7,6 @@ AI::AI() {}
 Piece AI::getBest(b &board, Piece &cur, Piece &next, int &curX, int &curY, int BoardHeight, int BoardWidth) {
     // for each of the 4 rotations
     Piece best = cur;
-    int prev = curX;
     double score = -2147483647;
     Piece c(cur);
     for (int i = 0; i < 4; ++i) {
@@ -133,18 +132,23 @@ double AI::aggregate_score(b &board) {
         if (!isEmpty) ++max_height;
     }
     int deepest_well = 0;
+    int smallest = n;
     int prev = -10;
     int bumpiness = 0;
     for (int j = 0; j < m; ++j) {
         int i = n -1;
         while (i >= 0 && board[i][j] == NoShape) --i;
+        smallest = std::min(smallest, i);
         int dep = 0;
         while (i >= 0) {
-            if (board[i][j] != NoShape) dep = 0;
+            if (board[i][j] != NoShape){
+                deepest_well = std::max(deepest_well, dep);
+                dep = 0;
+            }
             else ++dep;
-            deepest_well = std::max(deepest_well, dep);
             --i;
         }
+        deepest_well = std::max(deepest_well, dep);
     }
     for (int j = 0; j < m; ++j) {
         int i = n-1;
@@ -152,10 +156,11 @@ double AI::aggregate_score(b &board) {
         if (prev > -10 && i >= 0) {
             bumpiness += std::abs(i - prev);
         }
+
         prev = i;
     }
     if (full_lines >= 3) full_lines *= 2;
-    return 111*holes - 4*max_height + 5*full_lines - 3.5*wells - 3 * bumpiness - blockades - 5*deepest_well;
+    return 10*holes - 4*max_height + 6*full_lines -3.5 *bumpiness - 5*deepest_well;
 }
 
 
